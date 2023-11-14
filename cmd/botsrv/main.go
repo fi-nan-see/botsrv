@@ -17,7 +17,7 @@ import (
 
 var (
 	fs           = flag.NewFlagSetWithEnvPrefix(os.Args[0], "BOTSRV", 0)
-	flConfigPath = fs.String("config", "config.toml", "Path to config file")
+	flConfigPath = fs.String("config", "cfg/local.toml", "Path to config file")
 	flVerbose    = fs.Bool("verbose", true, "enable debug output")
 
 	cfg app.Config
@@ -45,7 +45,6 @@ func main() {
 		}
 	}()
 	<-quit
-	application.Shutdown(5 * time.Second)
 }
 
 func exitOnError(err error) {
