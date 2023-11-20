@@ -10,25 +10,26 @@ on:
     branches: [ "master" ]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
+  # build:
+  #   runs-on: ubuntu-latest
 
-    steps:
-    - uses: actions/checkout@v3
-    - name: Build the Docker image
-      run: docker build . -t "$IMAGE_NAME"
-    - name: Authorize container registry
-      run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
-    - name: Push the image to the registry
-      run: docker push $IMAGE_NAME
+  #   steps:
+  #   - uses: actions/checkout@v3
+  #   - name: Build the Docker image
+  #     run: docker build . -t "$IMAGE_NAME"
+  #   - name: Authorize container registry
+  #     run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
+  #   - name: Push the image to the registry
+  #     run: docker push $IMAGE_NAME
 
   release:
     runs-on: ubuntu-latest
-    needs: build
+    # needs: build
 
     steps:
     - uses: actions/checkout@v3
     - run: curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+    - run: chmod u+x /root/yandex-cloud/bin/yc
     - run: /root/yandex-cloud/bin/yc config set token ${{secrets.YANDEX_OAUTH_TOKEN}}
     - run: /root/yandex-cloud/bin/yc config set folder-id ${{secrets.FOLDER_ID}}
     - run: /root/yandex-cloud/bin/yc serverless container revision deploy --image "$IMAGE_NAME" --container-name finansee-bot-backend --service-account-id ${{secrets.SERVICE_ACCOUNT_ID}}
