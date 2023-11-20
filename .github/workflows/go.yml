@@ -29,7 +29,6 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - run: curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
-    - run: chmod u+x /root/yandex-cloud/bin/yc
-    - run: /root/yandex-cloud/bin/yc config set token ${{secrets.YANDEX_OAUTH_TOKEN}}
-    - run: /root/yandex-cloud/bin/yc config set folder-id ${{secrets.FOLDER_ID}}
-    - run: /root/yandex-cloud/bin/yc serverless container revision deploy --image "$IMAGE_NAME" --container-name finansee-bot-backend --service-account-id ${{secrets.SERVICE_ACCOUNT_ID}}
+    - run: sudo /root/yandex-cloud/bin/yc config set token ${{secrets.YANDEX_OAUTH_TOKEN}}
+    - run: sudo /root/yandex-cloud/bin/yc config set folder-id ${{secrets.FOLDER_ID}}
+    - run: sudo /root/yandex-cloud/bin/yc serverless container revision deploy --image "$IMAGE_NAME" --container-name finansee-bot-backend --service-account-id ${{secrets.SERVICE_ACCOUNT_ID}}
