@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . -t "$IMAGE_NAME"
+      run: docker build . -t "$IMAGE_NAME" --build-arg token=${{secrets.BOT_TOKEN}}
     - name: Authorize container registry
       run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
     - name: Push the image to the registry
