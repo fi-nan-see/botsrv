@@ -25,7 +25,7 @@ jobs:
   release:
     runs-on: ubuntu-latest
     container:
-      image: alpine:latest
+      image: ubuntu:latest
     # needs: build
 
     steps:
