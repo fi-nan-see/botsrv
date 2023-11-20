@@ -1,0 +1,23 @@
+name: Push image to yandex container registry
+
+env:
+  IMAGE_NAME: "cr.yandex/${{secrets.DOCKER_REGISTRY_ID}}/finansee-backend:release"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . -t "$IMAGE_NAME"
+    - name: Authorize container registry
+      run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
+    - name: Push the image to the registry
+      run: docker push $IMAGE_NAME
