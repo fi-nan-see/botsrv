@@ -10,23 +10,23 @@ on:
     branches: [ "master" ]
 
 jobs:
-  # build:
-  #   runs-on: ubuntu-latest
+  build:
+    runs-on: ubuntu-latest
 
-  #   steps:
-  #   - uses: actions/checkout@v3
-  #   - name: Build the Docker image
-  #     run: docker build . -t "$IMAGE_NAME"
-  #   - name: Authorize container registry
-  #     run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
-  #   - name: Push the image to the registry
-  #     run: docker push $IMAGE_NAME
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . -t "$IMAGE_NAME"
+    - name: Authorize container registry
+      run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
+    - name: Push the image to the registry
+      run: docker push $IMAGE_NAME
 
   release:
     runs-on: ubuntu-latest
     container:
       image: kawwik/yc:latest
-    # needs: build
+    needs: build
 
     steps:
     - uses: actions/checkout@v3
