@@ -54,8 +54,7 @@ func New(appName string, verbose bool, cfg Config) (*App, error) {
 func (a *App) registerBot() error {
 	opts := []bot.Option{
 		bot.WithMessageTextHandler("/start", bot.MatchTypeExact, a.bs.StartHandler),
-		//bot.WithMessageTextHandler("/help", bot.MatchTypeExact, a.sbs.SupportHelpHandler),
-		//bot.WithDefaultHandler(a.bs.SupportHandler),
+		bot.WithDefaultHandler(a.bs.InlineQueryHandler),
 	}
 
 	b, err := bot.New(a.cfg.Bot.Token, opts...)
