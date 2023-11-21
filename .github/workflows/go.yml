@@ -1,0 +1,35 @@
+name: Push image to yandex container registry
+
+env:
+  IMAGE_NAME: "cr.yandex/${{secrets.DOCKER_REGISTRY_ID}}/finansee-bot-backend:release"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Build the Docker image
+      run: docker build . -t "$IMAGE_NAME" --build-arg token=${{secrets.BOT_TOKEN}}
+    - name: Authorize container registry
+      run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
+    - name: Push the image to the registry
+      run: docker push $IMAGE_NAME
+
+  release:
+    runs-on: ubuntu-latest
+    container:
+      image: kawwik/yc:latest
+    needs: build
+
+    steps:
+    - uses: actions/checkout@v3
+    - run: yc config set token ${{secrets.YANDEX_OAUTH_TOKEN}}
+    - run: yc config set folder-id ${{secrets.FOLDER_ID}}
+    - run: yc serverless container revision deploy --image "$IMAGE_NAME" --container-name finansee-bot-backend --service-account-id ${{secrets.SERVICE_ACCOUNT_ID}}
