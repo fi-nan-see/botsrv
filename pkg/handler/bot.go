@@ -157,7 +157,7 @@ func (bs *BotService) InlineQueryHandler(ctx context.Context, b *bot.Bot, update
 func (bs *BotService) AddIncomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
-	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
+	plans, err := bs.Ac.Plans.GetPlans(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -171,17 +171,16 @@ func (bs *BotService) AddIncomeHandler(ctx context.Context, b *bot.Bot, update *
 		})
 	}
 	bs.SendMessage(ctx, b, &bot.SendMessageParams{
-		ChatID:          update.CallbackQuery.Sender.ID,
-		MessageThreadID: 0,
-		Text:            "Choose a plan from list below",
-		ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
+		ChatID:      update.CallbackQuery.Sender.ID,
+		Text:        "Выберите план из списка ниже:",
+		ReplyMarkup: models.InlineKeyboardMarkup{InlineKeyboard: kb},
 	})
 }
 
 func (bs *BotService) AddOutcomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
-	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
+	plans, err := bs.Ac.Plans.GetPlans(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -195,16 +194,15 @@ func (bs *BotService) AddOutcomeHandler(ctx context.Context, b *bot.Bot, update 
 		})
 	}
 	bs.SendMessage(ctx, b, &bot.SendMessageParams{
-		ChatID:          update.CallbackQuery.Sender.ID,
-		MessageThreadID: 0,
-		Text:            "Choose a plan from list below",
-		ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
+		ChatID:      update.CallbackQuery.Sender.ID,
+		Text:        "Выберите план из списка ниже:",
+		ReplyMarkup: models.InlineKeyboardMarkup{InlineKeyboard: kb},
 	})
 }
 func (bs *BotService) AddSavingsHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
-	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
+	plans, err := bs.Ac.Plans.GetPlans(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -218,10 +216,9 @@ func (bs *BotService) AddSavingsHandler(ctx context.Context, b *bot.Bot, update 
 		})
 	}
 	bs.SendMessage(ctx, b, &bot.SendMessageParams{
-		ChatID:          update.CallbackQuery.Sender.ID,
-		MessageThreadID: 0,
-		Text:            "Choose a plan from list below",
-		ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
+		ChatID:      update.CallbackQuery.Sender.ID,
+		Text:        "Выберите план из списка ниже:",
+		ReplyMarkup: models.InlineKeyboardMarkup{InlineKeyboard: kb},
 	})
 }
 
@@ -267,5 +264,39 @@ func (bs *BotService) AddPlanSavingsHandler(ctx context.Context, b *bot.Bot, upd
 	bs.SendMessage(ctx, b, &bot.SendMessageParams{
 		ChatID: update.CallbackQuery.Sender.ID,
 		Text:   fmt.Sprintf("savings to plan with summ %d successfully added", amount),
+	})
+}
+
+func (bs *BotService) PlansHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	plans, err := bs.Ac.Plans.GetPlans(ctx, strconv.Itoa(int(update.Message.From.ID))+bs.tgSalt)
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	kb := [][]models.InlineKeyboardButton{[]models.InlineKeyboardButton{}}
+	for _, plan := range plans {
+		kb = append(kb, []models.InlineKeyboardButton{
+			{
+				Text:         plan.Name,
+				CallbackData: "get_plan_" + plan.ID},
+		})
+	}
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID:      update.CallbackQuery.Sender.ID,
+		Text:        "Выберите план из списка ниже:",
+		ReplyMarkup: models.InlineKeyboardMarkup{InlineKeyboard: kb},
+	})
+}
+
+func (bs *BotService) GetPlanHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	q := strings.Split(update.CallbackQuery.Data, "_")
+	plan, err := bs.Ac.Plans.GetPlan(ctx, strconv.Itoa(int(update.Message.From.ID))+bs.tgSalt, q[2])
+	if err != nil {
+		return
+	}
+	text := fmt.Sprintf("Название: %s\nДата начала: %s\nДата окончания:%s\nИзначальный баланс:%d\nТекущий баланс%d\nАктуальный: %v", plan.Name, plan.Start_date, plan.End_date, plan.Initial_balance, plan.Current_balance, plan.Is_actual)
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID: update.CallbackQuery.Sender.ID,
+		Text:   text,
 	})
 }

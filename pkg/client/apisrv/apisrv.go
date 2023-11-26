@@ -41,6 +41,27 @@ func NewClient(endpoint string, header http.Header, httpClient *http.Client) *Cl
 	return c
 }
 
+type HandlerPlanDto struct {
+	// Текущий баланс
+	Current_balance int `json:"current_balance"`
+	// Дата окончания периода
+	End_date string `json:"end_date"`
+	// ID плана
+	ID string `json:"id"`
+	// Запланированные пополнения
+	Incomes []HandlerPlannedIncomeDto `json:"incomes"`
+	// Изначальный баланс
+	Initial_balance int `json:"initial_balance"`
+	// Статус плана
+	Is_actual bool `json:"is_actual"`
+	// Название плана
+	Name string `json:"name"`
+	// Запланированные списания
+	Outcomes []HandlerPlannedOutcomeDto `json:"outcomes"`
+	// Дата начала периода
+	Start_date string `json:"start_date"`
+}
+
 type HandlerPlanPreviewDto struct {
 	// Текущий баланс
 	Current_balance int `json:"current_balance"`
@@ -54,6 +75,28 @@ type HandlerPlanPreviewDto struct {
 	Name string `json:"name"`
 	// Дата начала периода
 	Start_date string `json:"start_date"`
+}
+
+type HandlerPlannedIncomeDto struct {
+	// Сумма дохода
+	Amount int `json:"amount"`
+	// Дата дохода
+	Date string `json:"date"`
+	// ID пополнения
+	ID string `json:"id"`
+	// Название дохода
+	Name string `json:"name"`
+}
+
+type HandlerPlannedOutcomeDto struct {
+	// Сумма расхода
+	Amount int `json:"amount"`
+	// День расхода
+	Date string `json:"date"`
+	// ID списания
+	ID string `json:"id"`
+	// Название расхода
+	Name string `json:"name"`
 }
 
 type svcPlans struct {
@@ -144,14 +187,27 @@ func (c *svcPlans) AddSavings(ctx context.Context, tgIdSalted string, planId str
 	return
 }
 
-func (c *svcPlans) GetPlansHandler(ctx context.Context, tgIdSalted string) (res []HandlerPlanPreviewDto, err error) {
+func (c *svcPlans) GetPlan(ctx context.Context, tgIdSalted string, planId string) (res *HandlerPlanDto, err error) {
+	_req := struct {
+		TgIdSalted string
+		PlanID     string
+	}{
+		TgIdSalted: tgIdSalted, PlanID: planId,
+	}
+
+	err = c.client.call(ctx, "plans.GetPlan", _req, &res)
+
+	return
+}
+
+func (c *svcPlans) GetPlans(ctx context.Context, tgIdSalted string) (res []HandlerPlanPreviewDto, err error) {
 	_req := struct {
 		TgIdSalted string
 	}{
 		TgIdSalted: tgIdSalted,
 	}
 
-	err = c.client.call(ctx, "plans.GetPlansHandler", _req, &res)
+	err = c.client.call(ctx, "plans.GetPlans", _req, &res)
 
 	return
 }
