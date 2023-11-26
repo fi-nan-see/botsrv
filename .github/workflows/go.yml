@@ -2,7 +2,7 @@ name: Push image to yandex container registry
 
 env:
   IMAGE_NAME: "cr.yandex/${{secrets.DOCKER_REGISTRY_ID}}/finansee-bot-backend:release"
-  API_URL: "https://d5duolb1cde5dmflb7bd.apigw.yandexcloud.net/int/bot"
+  API_URL: "https://d5duolb1cde5dmflb7bd.apigw.yandexcloud.net/int/bot/"
 
 on:
   push:
