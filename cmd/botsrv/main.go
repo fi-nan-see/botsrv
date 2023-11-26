@@ -19,7 +19,6 @@ var (
 	fs           = flag.NewFlagSetWithEnvPrefix(os.Args[0], "BOTSRV", 0)
 	flConfigPath = fs.String("config", "cfg/local.toml", "Path to config file")
 	flVerbose    = fs.Bool("verbose", true, "enable debug output")
-	//TODO: token        = fs.String("token", "", "bot token")
 
 	cfg app.Config
 )
@@ -34,7 +33,7 @@ func main() {
 	exitOnError(err)
 	//TODO: cfg.Bot.Token = *token
 
-	application, err := app.New("botsrv", *flVerbose, cfg)
+	application, err := app.New("botsrv", *flVerbose, cfg, os.Getenv("tgSalt"))
 	exitOnError(err)
 
 	quit := make(chan os.Signal, 1)

@@ -71,13 +71,13 @@ var (
 )
 
 // AddIncome adds income
-func (c *svcPlans) AddIncome(ctx context.Context, tgId int, planId string, amount float64) (err error) {
+func (c *svcPlans) AddIncome(ctx context.Context, tgIdSalted string, planId string, amount float64) (err error) {
 	_req := struct {
-		TgID   int
-		PlanID string
-		Amount float64
+		TgIdSalted string
+		PlanID     string
+		Amount     float64
 	}{
-		TgID: tgId, PlanID: planId, Amount: amount,
+		TgIdSalted: tgIdSalted, PlanID: planId, Amount: amount,
 	}
 
 	err = c.client.call(ctx, "plans.AddIncome", _req, nil)
@@ -97,13 +97,13 @@ var (
 )
 
 // AddOutcome adds outcome
-func (c *svcPlans) AddOutcome(ctx context.Context, tgId int, planId string, amount float64) (err error) {
+func (c *svcPlans) AddOutcome(ctx context.Context, tgIdSalted string, planId string, amount float64) (err error) {
 	_req := struct {
-		TgID   int
-		PlanID string
-		Amount float64
+		TgIdSalted string
+		PlanID     string
+		Amount     float64
 	}{
-		TgID: tgId, PlanID: planId, Amount: amount,
+		TgIdSalted: tgIdSalted, PlanID: planId, Amount: amount,
 	}
 
 	err = c.client.call(ctx, "plans.AddOutcome", _req, nil)
@@ -123,13 +123,13 @@ var (
 )
 
 // AddSavings adds savings
-func (c *svcPlans) AddSavings(ctx context.Context, tgId int, planId string, amount float64) (err error) {
+func (c *svcPlans) AddSavings(ctx context.Context, tgIdSalted string, planId string, amount float64) (err error) {
 	_req := struct {
-		TgID   int
-		PlanID string
-		Amount float64
+		TgIdSalted string
+		PlanID     string
+		Amount     float64
 	}{
-		TgID: tgId, PlanID: planId, Amount: amount,
+		TgIdSalted: tgIdSalted, PlanID: planId, Amount: amount,
 	}
 
 	err = c.client.call(ctx, "plans.AddSavings", _req, nil)
@@ -144,14 +144,28 @@ func (c *svcPlans) AddSavings(ctx context.Context, tgId int, planId string, amou
 	return
 }
 
-func (c *svcPlans) GetPlansHandler(ctx context.Context, tgId int) (res []HandlerPlanPreviewDto, err error) {
+func (c *svcPlans) GetPlansHandler(ctx context.Context, tgIdSalted string) (res []HandlerPlanPreviewDto, err error) {
 	_req := struct {
-		TgID int
+		TgIdSalted string
 	}{
-		TgID: tgId,
+		TgIdSalted: tgIdSalted,
 	}
 
 	err = c.client.call(ctx, "plans.GetPlansHandler", _req, &res)
+
+	return
+}
+
+// RegisterTgId adds pair of tgId, tgKey to db
+func (c *svcPlans) RegisterTgID(ctx context.Context, tgIdSalted string, tgKey string) (res bool, err error) {
+	_req := struct {
+		TgIdSalted string
+		TgKey      string
+	}{
+		TgIdSalted: tgIdSalted, TgKey: tgKey,
+	}
+
+	err = c.client.call(ctx, "plans.RegisterTgId", _req, &res)
 
 	return
 }

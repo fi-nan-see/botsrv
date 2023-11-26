@@ -32,11 +32,12 @@ type SendMsgParams struct {
 type BotService struct {
 	embedlog.Logger
 	Ac      *apisrv.Client
+	tgSalt  string
 	isDevel bool
 }
 
-func NewBotService(logger embedlog.Logger, ac *apisrv.Client, isDevel bool) *BotService {
-	return &BotService{Logger: logger, Ac: ac, isDevel: isDevel}
+func NewBotService(logger embedlog.Logger, ac *apisrv.Client, isDevel bool, tgSalt string) *BotService {
+	return &BotService{Logger: logger, Ac: ac, isDevel: isDevel, tgSalt: tgSalt}
 }
 
 func (bs *BotService) StartHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
@@ -142,7 +143,7 @@ func (bs *BotService) InlineQueryHandler(ctx context.Context, b *bot.Bot, update
 func (bs *BotService) AddIncomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
-	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, int(update.CallbackQuery.Sender.ID))
+	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -166,7 +167,7 @@ func (bs *BotService) AddIncomeHandler(ctx context.Context, b *bot.Bot, update *
 func (bs *BotService) AddOutcomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
-	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, int(update.CallbackQuery.Sender.ID))
+	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -189,7 +190,7 @@ func (bs *BotService) AddOutcomeHandler(ctx context.Context, b *bot.Bot, update 
 func (bs *BotService) AddSavingsHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
-	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, int(update.CallbackQuery.Sender.ID))
+	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt)
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -214,7 +215,7 @@ func (bs *BotService) AddPlanIncomeHandler(ctx context.Context, b *bot.Bot, upda
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
 	amount, _ := strconv.Atoi(q[4])
-	err := bs.Ac.Plans.AddIncome(ctx, int(update.CallbackQuery.Sender.ID), q[3], float64(amount))
+	err := bs.Ac.Plans.AddIncome(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt, q[3], float64(amount))
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -229,7 +230,7 @@ func (bs *BotService) AddPlanOutcomeHandler(ctx context.Context, b *bot.Bot, upd
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
 	amount, _ := strconv.Atoi(q[4])
-	err := bs.Ac.Plans.AddOutcome(ctx, int(update.CallbackQuery.Sender.ID), q[3], float64(amount))
+	err := bs.Ac.Plans.AddOutcome(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt, q[3], float64(amount))
 	if err != nil {
 		bs.Errorf("%v", err)
 		return
@@ -244,7 +245,7 @@ func (bs *BotService) AddPlanSavingsHandler(ctx context.Context, b *bot.Bot, upd
 	q := strings.Split(update.CallbackQuery.Data, "_")
 	// TODO: add errors handling
 	amount, _ := strconv.Atoi(q[4])
-	err := bs.Ac.Plans.AddSavings(ctx, int(update.CallbackQuery.Sender.ID), q[3], float64(amount))
+	err := bs.Ac.Plans.AddSavings(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt, q[3], float64(amount))
 	if err != nil {
 		bs.Errorf("%v", err)
 		return

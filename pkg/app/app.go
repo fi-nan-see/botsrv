@@ -30,17 +30,19 @@ type App struct {
 	apisrvClient *apisrv.Client
 	bot          *bot.Bot
 	bs           *handler.BotService
+	tgSalt       string
 }
 
-func New(appName string, verbose bool, cfg Config) (*App, error) {
+func New(appName string, verbose bool, cfg Config, tgSalt string) (*App, error) {
 	a := &App{
 		appName:      appName,
 		cfg:          cfg,
 		apisrvClient: apisrv.NewDefaultClient(cfg.Server.Api),
+		tgSalt:       tgSalt,
 	}
 	a.SetStdLoggers(verbose)
 
-	a.bs = handler.NewBotService(a.Logger, a.apisrvClient, a.cfg.Server.IsDevel)
+	a.bs = handler.NewBotService(a.Logger, a.apisrvClient, a.cfg.Server.IsDevel, a.tgSalt)
 	a.bs.SetLoggers(a.Loggers())
 
 	// register bot

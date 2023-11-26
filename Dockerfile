@@ -7,6 +7,7 @@ RUN go build -o app cmd/botsrv/main.go
 FROM alpine
 ARG token
 ENV token $token
+ENV tgSalt "bairKrutoy"
 WORKDIR /build
 COPY --from=builder /build/app /build/app
 COPY cfg .
