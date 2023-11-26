@@ -2,7 +2,9 @@ package handler
 
 import (
 	"context"
+	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/go-telegram/bot"
 	"github.com/go-telegram/bot/models"
@@ -95,7 +97,7 @@ func (bs *BotService) InlineQueryHandler(ctx context.Context, b *bot.Bot, update
 					InlineKeyboard: [][]models.InlineKeyboardButton{{
 						models.InlineKeyboardButton{
 							Text:         "Да",
-							CallbackData: "add_expense_" + update.InlineQuery.Query,
+							CallbackData: "add_outcome_" + update.InlineQuery.Query,
 						},
 						models.InlineKeyboardButton{
 							Text:         "Нет",
@@ -135,4 +137,120 @@ func (bs *BotService) InlineQueryHandler(ctx context.Context, b *bot.Bot, update
 	if err != nil {
 		return
 	}
+}
+
+func (bs *BotService) AddIncomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	q := strings.Split(update.CallbackQuery.Data, "_")
+	// TODO: add errors handling
+	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, int(update.CallbackQuery.Sender.ID))
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	kb := [][]models.InlineKeyboardButton{[]models.InlineKeyboardButton{}}
+	for _, plan := range plans[0:10] {
+		kb = append(kb, []models.InlineKeyboardButton{
+			{
+				Text:         plan.Name,
+				CallbackData: "add_plan_income_" + plan.ID + "_" + q[2]},
+		})
+	}
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID:          update.CallbackQuery.Sender.ID,
+		MessageThreadID: 0,
+		Text:            "Choose a plan from list below",
+		ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
+	})
+}
+
+func (bs *BotService) AddOutcomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	q := strings.Split(update.CallbackQuery.Data, "_")
+	// TODO: add errors handling
+	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, int(update.CallbackQuery.Sender.ID))
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	kb := [][]models.InlineKeyboardButton{[]models.InlineKeyboardButton{}}
+	for _, plan := range plans[0:10] {
+		kb = append(kb, []models.InlineKeyboardButton{
+			{
+				Text:         plan.Name,
+				CallbackData: "add_plan_outcome_" + plan.ID + "_" + q[2]},
+		})
+	}
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID:          update.CallbackQuery.Sender.ID,
+		MessageThreadID: 0,
+		Text:            "Choose a plan from list below",
+		ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
+	})
+}
+func (bs *BotService) AddSavingsHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	q := strings.Split(update.CallbackQuery.Data, "_")
+	// TODO: add errors handling
+	plans, err := bs.Ac.Plans.GetPlansHandler(ctx, int(update.CallbackQuery.Sender.ID))
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	kb := [][]models.InlineKeyboardButton{[]models.InlineKeyboardButton{}}
+	for _, plan := range plans[0:10] {
+		kb = append(kb, []models.InlineKeyboardButton{
+			{
+				Text:         plan.Name,
+				CallbackData: "add_plan_savings_" + plan.ID + "_" + q[2]},
+		})
+	}
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID:          update.CallbackQuery.Sender.ID,
+		MessageThreadID: 0,
+		Text:            "Choose a plan from list below",
+		ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
+	})
+}
+
+func (bs *BotService) AddPlanIncomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	q := strings.Split(update.CallbackQuery.Data, "_")
+	// TODO: add errors handling
+	amount, _ := strconv.Atoi(q[4])
+	err := bs.Ac.Plans.AddIncome(ctx, int(update.CallbackQuery.Sender.ID), q[3], float64(amount))
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID: update.CallbackQuery.Sender.ID,
+		Text:   fmt.Sprintf("income to plan with summ %d successfully added", amount),
+	})
+}
+
+func (bs *BotService) AddPlanOutcomeHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	q := strings.Split(update.CallbackQuery.Data, "_")
+	// TODO: add errors handling
+	amount, _ := strconv.Atoi(q[4])
+	err := bs.Ac.Plans.AddOutcome(ctx, int(update.CallbackQuery.Sender.ID), q[3], float64(amount))
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID: update.CallbackQuery.Sender.ID,
+		Text:   fmt.Sprintf("outcome to plan with summ %d successfully added", amount),
+	})
+}
+
+func (bs *BotService) AddPlanSavingsHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
+	q := strings.Split(update.CallbackQuery.Data, "_")
+	// TODO: add errors handling
+	amount, _ := strconv.Atoi(q[4])
+	err := bs.Ac.Plans.AddSavings(ctx, int(update.CallbackQuery.Sender.ID), q[3], float64(amount))
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	bs.SendMessage(ctx, b, &bot.SendMessageParams{
+		ChatID: update.CallbackQuery.Sender.ID,
+		Text:   fmt.Sprintf("savings to plan with summ %d successfully added", amount),
+	})
 }

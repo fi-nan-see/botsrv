@@ -54,6 +54,12 @@ func New(appName string, verbose bool, cfg Config) (*App, error) {
 func (a *App) registerBot() error {
 	opts := []bot.Option{
 		bot.WithMessageTextHandler("/start", bot.MatchTypeExact, a.bs.StartHandler),
+		bot.WithCallbackQueryDataHandler("add_income_", bot.MatchTypePrefix, a.bs.AddIncomeHandler),
+		bot.WithCallbackQueryDataHandler("add_outcome_", bot.MatchTypePrefix, a.bs.AddOutcomeHandler),
+		bot.WithCallbackQueryDataHandler("add_savings_", bot.MatchTypePrefix, a.bs.AddSavingsHandler),
+		bot.WithCallbackQueryDataHandler("add_plan_income_", bot.MatchTypePrefix, a.bs.AddPlanIncomeHandler),
+		bot.WithCallbackQueryDataHandler("add_plan_outcome_", bot.MatchTypePrefix, a.bs.AddPlanOutcomeHandler),
+		bot.WithCallbackQueryDataHandler("add_plan_savings_", bot.MatchTypePrefix, a.bs.AddPlanSavingsHandler),
 		bot.WithDefaultHandler(a.bs.InlineQueryHandler),
 	}
 
