@@ -2,6 +2,7 @@ name: Push image to yandex container registry
 
 env:
   IMAGE_NAME: "cr.yandex/${{secrets.DOCKER_REGISTRY_ID}}/finansee-bot-backend:release"
+  API_URL: "https://d5duolb1cde5dmflb7bd.apigw.yandexcloud.net/int/bot"
 
 on:
   push:
@@ -16,7 +17,11 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Build the Docker image
-      run: docker build . -t "$IMAGE_NAME" --build-arg token=${{secrets.BOT_TOKEN}}
+      run: |
+        docker build . -t "$IMAGE_NAME" \
+        --build-arg token=${{secrets.BOT_TOKEN}} \
+        --build-arg tgSalt=${{secrets.TG_SALT}} \
+        --build-arg apiUrl=$API_URL
     - name: Authorize container registry
       run: docker login --username oauth --password ${{secrets.YANDEX_OAUTH_TOKEN}} cr.yandex
     - name: Push the image to the registry
@@ -30,6 +35,10 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
-    - run: yc config set token ${{secrets.YANDEX_OAUTH_TOKEN}}
-    - run: yc config set folder-id ${{secrets.FOLDER_ID}}
-    - run: yc serverless container revision deploy --image "$IMAGE_NAME" --container-name finansee-bot-backend --service-account-id ${{secrets.SERVICE_ACCOUNT_ID}}
+    - run: |
+        yc config set token ${{secrets.YANDEX_OAUTH_TOKEN}}
+        yc config set folder-id ${{secrets.FOLDER_ID}}
+        yc serverless container revision deploy \
+          --image "$IMAGE_NAME" \
+          --container-name finansee-bot-backend \
+          --service-account-id ${{secrets.SERVICE_ACCOUNT_ID}}
