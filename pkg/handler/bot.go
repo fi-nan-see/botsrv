@@ -68,14 +68,6 @@ func (bs *BotService) InlineQueryHandler(ctx context.Context, b *bot.Bot, update
 	if _, err := strconv.Atoi(update.InlineQuery.Query); err != nil {
 		return
 	}
-	//query, err := b.AnswerInlineQuery(ctx)
-	//if err != nil {
-	//	return
-	//}
-	//bs.SendMessage(ctx, b, &bot.SendMessageParams{
-	//	ChatID: update.InlineQuery.From.ID,
-	//	Text:   "Вы послали: " + update.InlineQuery.Query,
-	//})
 
 	_, err := b.AnswerInlineQuery(ctx, &bot.AnswerInlineQueryParams{
 		InlineQueryID: update.InlineQuery.ID,
@@ -193,11 +185,20 @@ func (bs *BotService) AddOutcomeHandler(ctx context.Context, b *bot.Bot, update 
 				CallbackData: "add_plan_outcome_" + plan.ID + "_" + q[2]},
 		})
 	}
-	bs.SendMessage(ctx, b, &bot.SendMessageParams{
-		ChatID:      update.CallbackQuery.Sender.ID,
-		Text:        "Выберите план из списка ниже:",
-		ReplyMarkup: models.InlineKeyboardMarkup{InlineKeyboard: kb},
+	_, err = b.EditMessageText(ctx, &bot.EditMessageTextParams{
+		InlineMessageID: update.CallbackQuery.InlineMessageID,
+		Text:            "Выберите план из списка ниже:",
+		ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
 	})
+	if err != nil {
+		bs.Errorf("%v", err)
+		return
+	}
+	//bs.EditMessage(ctx, b, &bot.EditMessageTextParams{
+	//	InlineMessageID: update.CallbackQuery.InlineMessageID,
+	//	Text:            "Выберите план из списка ниже:",
+	//	ReplyMarkup:     models.InlineKeyboardMarkup{InlineKeyboard: kb},
+	//})
 }
 func (bs *BotService) AddSavingsHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
@@ -246,9 +247,9 @@ func (bs *BotService) AddPlanOutcomeHandler(ctx context.Context, b *bot.Bot, upd
 		bs.Errorf("%v", err)
 		return
 	}
-	bs.SendMessage(ctx, b, &bot.SendMessageParams{
-		ChatID: update.CallbackQuery.Sender.ID,
-		Text:   fmt.Sprintf("outcome to plan with summ %d successfully added", amount),
+	bs.EditMessage(ctx, b, &bot.EditMessageTextParams{
+		InlineMessageID: update.CallbackQuery.InlineMessageID,
+		Text:            fmt.Sprintf("outcome to plan with summ %d successfully added", amount),
 	})
 }
 
@@ -282,7 +283,7 @@ func (bs *BotService) PlansHandler(ctx context.Context, b *bot.Bot, update *mode
 		})
 	}
 	bs.SendMessage(ctx, b, &bot.SendMessageParams{
-		ChatID:      update.CallbackQuery.Sender.ID,
+		ChatID:      update.Message.From.ID,
 		Text:        "Выберите план из списка ниже:",
 		ReplyMarkup: models.InlineKeyboardMarkup{InlineKeyboard: kb},
 	})
@@ -290,11 +291,11 @@ func (bs *BotService) PlansHandler(ctx context.Context, b *bot.Bot, update *mode
 
 func (bs *BotService) GetPlanHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
 	q := strings.Split(update.CallbackQuery.Data, "_")
-	plan, err := bs.Ac.Plans.GetPlan(ctx, strconv.Itoa(int(update.Message.From.ID))+bs.tgSalt, q[2])
+	plan, err := bs.Ac.Plans.GetPlan(ctx, strconv.Itoa(int(update.CallbackQuery.Sender.ID))+bs.tgSalt, q[2])
 	if err != nil {
 		return
 	}
-	text := fmt.Sprintf("Название: %s\nДата начала: %s\nДата окончания:%s\nИзначальный баланс:%d\nТекущий баланс%d\nАктуальный: %v", plan.Name, plan.Start_date, plan.End_date, plan.Initial_balance, plan.Current_balance, plan.Is_actual)
+	text := fmt.Sprintf("Название: %s\nДата начала: %s\nДата окончания: %s\nИзначальный баланс: %d\nТекущий баланс: %d\nАктуальный: %v", plan.Name, plan.Start_date, plan.End_date, plan.Initial_balance, plan.Current_balance, plan.Is_actual)
 	bs.SendMessage(ctx, b, &bot.SendMessageParams{
 		ChatID: update.CallbackQuery.Sender.ID,
 		Text:   text,

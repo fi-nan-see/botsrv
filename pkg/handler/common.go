@@ -95,11 +95,11 @@ func (bs *BotService) DeleteMessage(ctx context.Context, b *bot.Bot, chatId int6
 }
 
 // EditMessage is a function that sends edit message request to TG API.
-func (bs *BotService) EditMessage(ctx context.Context, b *bot.Bot, chatId int64, params *bot.EditMessageTextParams) {
+func (bs *BotService) EditMessage(ctx context.Context, b *bot.Bot, params *bot.EditMessageTextParams) {
 	_, err := b.EditMessageText(ctx, params)
 	params.ParseMode = models.ParseModeHTML
 	if err != nil {
-		bs.Errorf("[EditMessage] failed to edit message bot=%v messageId=%v messageText=%v err=%v", b, params.MessageID, params.Text, err)
+		bs.Errorf("[EditMessage] failed to edit message bot=%v messageId=%v messageText=%v inlineMessageId=%v err=%v", b, params.MessageID, params.Text, params.InlineMessageID, err)
 		return
 	}
 	if bs.isDevel {

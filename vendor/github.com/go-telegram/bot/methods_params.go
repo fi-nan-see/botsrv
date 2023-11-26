@@ -592,7 +592,7 @@ type GetMyDefaultAdministratorRightsParams struct {
 }
 
 type EditMessageTextParams struct {
-	ChatID                any                    `json:"chat_id"`
+	ChatID                any                    `json:"chat_id,omitempty"`
 	MessageID             int                    `json:"message_id,omitempty"`
 	InlineMessageID       string                 `json:"inline_message_id,omitempty"`
 	Text                  string                 `json:"text"`
