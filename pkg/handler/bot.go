@@ -234,7 +234,7 @@ func (bs *BotService) AddPlanIncomeHandler(ctx context.Context, b *bot.Bot, upda
 	}
 	bs.EditMessage(ctx, b, &bot.EditMessageTextParams{
 		InlineMessageID: update.CallbackQuery.InlineMessageID,
-		Text:            fmt.Sprintf("income to plan with summ %d successfully added", amount),
+		Text:            fmt.Sprintf("доход на сумму %d успешно добавлен в план!", amount),
 	})
 }
 
@@ -249,7 +249,7 @@ func (bs *BotService) AddPlanOutcomeHandler(ctx context.Context, b *bot.Bot, upd
 	}
 	bs.EditMessage(ctx, b, &bot.EditMessageTextParams{
 		InlineMessageID: update.CallbackQuery.InlineMessageID,
-		Text:            fmt.Sprintf("outcome to plan with summ %d successfully added", amount),
+		Text:            fmt.Sprintf("расход на сумму %d успешно добавлен в план!", amount),
 	})
 }
 
@@ -264,7 +264,7 @@ func (bs *BotService) AddPlanSavingsHandler(ctx context.Context, b *bot.Bot, upd
 	}
 	bs.EditMessage(ctx, b, &bot.EditMessageTextParams{
 		InlineMessageID: update.CallbackQuery.InlineMessageID,
-		Text:            fmt.Sprintf("savings to plan with summ %d successfully added", amount),
+		Text:            fmt.Sprintf("сбережения на сумму %d успешно добавлены в план!", amount),
 	})
 }
 
