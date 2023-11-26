@@ -41,10 +41,24 @@ func NewBotService(logger embedlog.Logger, ac *apisrv.Client, isDevel bool, tgSa
 }
 
 func (bs *BotService) StartHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
-	bs.SendMessage(ctx, b, &bot.SendMessageParams{
-		ChatID: update.Message.Chat.ID,
-		Text:   "Добро пожаловать в бот Finansee! Здесь вы можете осуществлять финансовое планирование, не выходя из Telegram!",
-	})
+	r := update.Message.Text
+	parts := strings.SplitN(r, " ", 2)
+	if len(parts) > 1 {
+		res, err := bs.Ac.Plans.RegisterTgID(ctx, strconv.Itoa(int(update.Message.From.ID))+bs.tgSalt, parts[1])
+		if err != nil {
+			return
+		} else if res {
+			bs.SendMessage(ctx, b, &bot.SendMessageParams{
+				ChatID: update.Message.Chat.ID,
+				Text:   "Добро пожаловать в бот Finansee, вы успешно зарегистрированы!",
+			})
+		}
+	} else {
+		bs.SendMessage(ctx, b, &bot.SendMessageParams{
+			ChatID: update.Message.Chat.ID,
+			Text:   "Добро пожаловать в бот Finansee! Зарегистрируйтесь через синюю кнопку FinanSee снизу слева, чтобы получить доступ к функциям бота!",
+		})
+	}
 }
 
 func (bs *BotService) InlineQueryHandler(ctx context.Context, b *bot.Bot, update *models.Update) {
@@ -149,7 +163,7 @@ func (bs *BotService) AddIncomeHandler(ctx context.Context, b *bot.Bot, update *
 		return
 	}
 	kb := [][]models.InlineKeyboardButton{[]models.InlineKeyboardButton{}}
-	for _, plan := range plans[0:10] {
+	for _, plan := range plans {
 		kb = append(kb, []models.InlineKeyboardButton{
 			{
 				Text:         plan.Name,
@@ -173,7 +187,7 @@ func (bs *BotService) AddOutcomeHandler(ctx context.Context, b *bot.Bot, update 
 		return
 	}
 	kb := [][]models.InlineKeyboardButton{[]models.InlineKeyboardButton{}}
-	for _, plan := range plans[0:10] {
+	for _, plan := range plans {
 		kb = append(kb, []models.InlineKeyboardButton{
 			{
 				Text:         plan.Name,
@@ -196,7 +210,7 @@ func (bs *BotService) AddSavingsHandler(ctx context.Context, b *bot.Bot, update 
 		return
 	}
 	kb := [][]models.InlineKeyboardButton{[]models.InlineKeyboardButton{}}
-	for _, plan := range plans[0:10] {
+	for _, plan := range plans {
 		kb = append(kb, []models.InlineKeyboardButton{
 			{
 				Text:         plan.Name,

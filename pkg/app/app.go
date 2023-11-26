@@ -55,7 +55,7 @@ func New(appName string, verbose bool, cfg Config, tgSalt string) (*App, error) 
 
 func (a *App) registerBot() error {
 	opts := []bot.Option{
-		bot.WithMessageTextHandler("/start", bot.MatchTypeExact, a.bs.StartHandler),
+		bot.WithMessageTextHandler("/start", bot.MatchTypeContains, a.bs.StartHandler),
 		bot.WithCallbackQueryDataHandler("add_income_", bot.MatchTypePrefix, a.bs.AddIncomeHandler),
 		bot.WithCallbackQueryDataHandler("add_outcome_", bot.MatchTypePrefix, a.bs.AddOutcomeHandler),
 		bot.WithCallbackQueryDataHandler("add_savings_", bot.MatchTypePrefix, a.bs.AddSavingsHandler),
