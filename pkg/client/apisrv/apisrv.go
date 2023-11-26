@@ -243,6 +243,7 @@ func newRPCClient(endpoint string, header http.Header, httpClient *http.Client) 
 }
 
 func (rc *rpcClient) call(ctx context.Context, methodName string, request, result interface{}) error {
+	println(rc.endpoint)
 	// encode params
 	bts, err := json.Marshal(request)
 	if err != nil {
